@@ -78,7 +78,7 @@ def login():
     password = request.json.get("password", None)   
     user = User.query.filter_by(email = email).first()      #cerca un utente nel database che abbia l'email fornita
     print(user)
-    if email != user.email :
+    if user is None :                                             #se l'email non esiste nel database, si verifica un errore con user.password.
         return jsonify({"msg": "Bad email or password"}), 401
     if password != user.password :                              #se la pwd inserita dall'utente è diversa dalla pwd nel database di User da errore(lo user deve essere giusto sennó non trova niente)
         return jsonify({"msg": "Bad email or password"}), 401
@@ -86,6 +86,12 @@ def login():
     access_token = create_access_token(identity=email)   #se l'email e la password ok, si genera un token JWT che conterrà l'identità dell'utente (l'email in questo caso)
     return jsonify(access_token=access_token)
 
+
+@app.route("/private", methods=["GET"])
+@jwt_required()                              #protegge la rotta, solo chi ha un token valido accede
+def private_route():
+    current_user = get_jwt_identity()       #recupera l'identità dell'utente che è stata salvata nel token JWT al momento del login
+    return jsonify(logged_in_as = current_user), 200    #resituisce loggato come e la mail dell'utente
 
 
 
