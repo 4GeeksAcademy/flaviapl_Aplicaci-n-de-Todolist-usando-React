@@ -95,6 +95,26 @@ def private_route():
 
 
 
+@app.route("/signup", methods=["POST"])
+def signup():
+    email = request.json.get ("email", None )          #accedo alla mail proveniente dalla richiesta 
+    password = request.json.get ("password", None)      #accedo alla pwd proveniente dalla richiesta
+    print(email and password)
+
+    if not email or not password :
+        return jsonify({"message": "email and password required"}), 400
+
+    new_user = User(email = email, password = password, is_active = True )     # crea nuovo utente in User e l'email e = alla email inserita nel POST e la PWD anche, devo definite is_active perchè il modello User lo richiede.
+    db.session.add(new_user)
+    db.session.commit()
+
+    return jsonify({"message": "user succesfully created"}), 201               #201 = Created
+
+
+
+
+
+
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3001))
